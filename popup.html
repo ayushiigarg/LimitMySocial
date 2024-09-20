@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Focus Time Blocker</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <h1>Focus Time Blocker</h1>
+    <label for="timeLimit">Set Time Limit (minutes):</label>
+    <input type="number" id="timeLimit" min="1" placeholder="Enter minutes">
+
+    <button id="setLimitBtn">Set Time Limit</button>
+    <div class="status"></div>
+
+    <h2>Blocked Channels:</h2>
+    <ul id="blockedChannels"></ul>
+
+    <label for="addChannel">Add YouTube Channel URL:</label>
+    <input type="text" id="addChannel" placeholder="Channel URL">
+    <button id="addChannelBtn">Add Channel</button>
+
+    <div class="blocked-sites-info">
+        <p>Social Media Sites: Instagram, Facebook, Twitter, YouTube</p>
+    </div>
+
+    <script src="popup.js"></script>
+</body>
+
+</html>
