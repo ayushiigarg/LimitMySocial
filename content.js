@@ -1,38 +1,41 @@
-(() => {
-    const stopVideoPlayback = () => {
-        // Stop any playing video
-        const videoElement = document.querySelector('video');
-        if (videoElement) {
-            videoElement.pause();
-            videoElement.currentTime = 0;
-        }
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+  if (request.action === "block") {
+    blockSite();
+  } else if (request.action === "suggestWatchLater") {
+    suggestWatchLater();
+  }
+});
 
-        // Create overlay notification
-        const overlay = document.createElement('div');
-        overlay.style.position = 'fixed';
-        overlay.style.top = 0;
-        overlay.style.left = 0;
-        overlay.style.width = '100%';
-        overlay.style.height = '100%';
-        overlay.style.backgroundColor = 'rgba(0, 0, 0, 0.8)';
-        overlay.style.color = '#fff';
-        overlay.style.display = 'flex';
-        overlay.style.alignItems = 'center';
-        overlay.style.justifyContent = 'center';
-        overlay.style.fontSize = '24px';
-        overlay.style.zIndex = 9999;
-        overlay.innerText = 'Your time limit is over. Please take a break!';
+function blockSite() {
+  const overlay = document.createElement('div');
+  overlay.id = 'time-limiter-overlay';
+  overlay.innerHTML = `
+    <div class="overlay-content">
+      <h1>Time's up!</h1>
+      <p>You've reached your time limit for distracting websites.</p>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+}
 
-        document.body.appendChild(overlay);
+function suggestWatchLater() {
+  const notification = document.createElement('div');
+  notification.id = 'watch-later-notification';
+  notification.innerHTML = `
+    <div class="notification-content">
+      <p>This video has been added to your Watch Later list. You can watch it when you have more time.</p>
+      <button id="close-notification">Close</button>
+    </div>
+  `;
+  document.body.appendChild(notification);
 
-        // Disable scrolling
-        document.body.style.overflow = 'hidden';
-    };
+  document.getElementById('close-notification').addEventListener('click', () => {
+    document.body.removeChild(notification);
+  });
 
-    // Listen for messages from background.js
-    chrome.runtime.onMessage.addListener((request) => {
-        if (request.action === "stopVideo") {
-            stopVideoPlayback();
-        }
-    });
-})();
+  setTimeout(() => {
+    if (document.body.contains(notification)) {
+      document.body.removeChild(notification);
+    }
+  }, 5000);
+}

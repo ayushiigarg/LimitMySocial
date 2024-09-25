@@ -1,33 +1,29 @@
 <!DOCTYPE html>
-<html lang="en">
-
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Focus Time Blocker</title>
-    <link rel="stylesheet" href="style.css">
+  <title>LimitMySocial</title>
+  <link rel="stylesheet" type="text/css" href="style.css">
 </head>
-
 <body>
-    <h1>Focus Time Blocker</h1>
-    <label for="timeLimit">Set Time Limit (minutes):</label>
-    <input type="number" id="timeLimit" min="1" placeholder="Enter minutes">
-
-    <button id="setLimitBtn">Set Time Limit</button>
-    <div class="status"></div>
-
-    <h2>Blocked Channels:</h2>
+  <h1>LimitMySocial</h1>
+  <div id="timeSpent"></div>
+  <div>
+    <label for="timeLimit">Time Limit (minutes):</label>
+    <input type="number" id="timeLimit" min="1" value="20">
+    <button id="setTimeLimit">Set Time Limit</button>
+  </div>
+  <div>
+    <h2>Distracting Sites</h2>
+    <input type="text" id="distractingSite" placeholder="Enter website domain">
+    <button id="addDistracting">Add Site</button>
+    <ul id="distractingSites"></ul>
+  </div>
+  <div>
+    <h2>Blocked YouTube Channels</h2>
+    <input type="text" id="channelUrl" placeholder="Enter YouTube channel URL">
+    <button id="addChannel">Add Channel</button>
     <ul id="blockedChannels"></ul>
-
-    <label for="addChannel">Add YouTube Channel URL:</label>
-    <input type="text" id="addChannel" placeholder="Channel URL">
-    <button id="addChannelBtn">Add Channel</button>
-
-    <div class="blocked-sites-info">
-        <p>Social Media Sites: Instagram, Facebook, Twitter, YouTube</p>
-    </div>
-
-    <script src="popup.js"></script>
+  </div>
+  <script src="popup.js"></script>
 </body>
-
 </html>

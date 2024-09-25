@@ -1,49 +1,78 @@
-document.addEventListener('DOMContentLoaded', function() {
-    const setLimitBtn = document.getElementById('setLimitBtn');
-    const timeLimitInput = document.getElementById('timeLimit');
-    const status = document.querySelector('.status');
-    
-    setLimitBtn.addEventListener('click', () => {
-        const minutes = parseInt(timeLimitInput.value);
-        if (!isNaN(minutes)) {
-            const limitInMilliseconds = minutes * 60000;
-            chrome.storage.local.set({ timeLimit: limitInMilliseconds }, function() {
-                status.textContent = `Time limit set to ${minutes} minutes.`;
-            });
-        } else {
-            status.textContent = "Please enter a valid number.";
-        }
-    });
+document.addEventListener('DOMContentLoaded', () => {
+  const setTimeLimitButton = document.getElementById('setTimeLimit');
+  const addChannelButton = document.getElementById('addChannel');
+  const addDistractingButton = document.getElementById('addDistracting');
+  const blockedChannelsList = document.getElementById('blockedChannels');
+  const distractingSitesList = document.getElementById('distractingSites');
+  const timeSpentDisplay = document.getElementById('timeSpent');
 
-    const addChannelBtn = document.getElementById('addChannelBtn');
-    const addChannelInput = document.getElementById('addChannel');
-    const blockedChannels = document.getElementById('blockedChannels');
+  setTimeLimitButton.addEventListener('click', () => {
+    const timeLimit = document.getElementById('timeLimit').value;
+    chrome.runtime.sendMessage({action: "setTimeLimit", timeLimit: parseInt(timeLimit)});
+  });
 
-    // Add YouTube channel to block list
-    addChannelBtn.addEventListener('click', () => {
-        const channelUrl = addChannelInput.value.trim();
-        if (channelUrl) {
-            chrome.storage.local.get({ blockedChannels: [] }, function(data) {
-                const updatedChannels = [...data.blockedChannels, channelUrl];
-                chrome.storage.local.set({ blockedChannels: updatedChannels }, function() {
-                    renderBlockedChannels(updatedChannels);
-                    addChannelInput.value = '';
-                });
-            });
-        }
-    });
-
-    // Load blocked channels from storage
-    chrome.storage.local.get({ blockedChannels: [] }, function(data) {
-        renderBlockedChannels(data.blockedChannels);
-    });
-
-    function renderBlockedChannels(channels) {
-        blockedChannels.innerHTML = '';
-        channels.forEach(channel => {
-            const li = document.createElement('li');
-            li.textContent = channel;
-            blockedChannels.appendChild(li);
-        });
+  addChannelButton.addEventListener('click', () => {
+    const channelUrl = document.getElementById('channelUrl').value;
+    if (channelUrl) {
+      chrome.runtime.sendMessage({action: "addBlockedChannel", channel: channelUrl});
+      updateBlockedChannelsList();
     }
+  });
+
+  addDistractingButton.addEventListener('click', () => {
+    const site = document.getElementById('distractingSite').value;
+    if (site) {
+      chrome.runtime.sendMessage({action: "addDistractingSite", site: site});
+      updateDistractingSitesList();
+    }
+  });
+
+  function updateBlockedChannelsList() {
+    chrome.runtime.sendMessage({action: "getBlockedChannels"}, (response) => {
+      blockedChannelsList.innerHTML = '';
+      response.blockedChannels.forEach(channel => {
+        const li = document.createElement('li');
+        li.textContent = channel;
+        const removeButton = document.createElement('button');
+        removeButton.textContent = 'Remove';
+        removeButton.addEventListener('click', () => {
+          chrome.runtime.sendMessage({action: "removeBlockedChannel", channel: channel});
+          updateBlockedChannelsList();
+        });
+        li.appendChild(removeButton);
+        blockedChannelsList.appendChild(li);
+      });
+    });
+  }
+
+  function updateDistractingSitesList() {
+    chrome.runtime.sendMessage({action: "getDistractingSites"}, (response) => {
+      distractingSitesList.innerHTML = '';
+      response.distractingSites.forEach(site => {
+        const li = document.createElement('li');
+        li.textContent = site;
+        const removeButton = document.createElement('button');
+        removeButton.textContent = 'Remove';
+        removeButton.addEventListener('click', () => {
+          chrome.runtime.sendMessage({action: "removeDistractingSite", site: site});
+          updateDistractingSitesList();
+        });
+        li.appendChild(removeButton);
+        distractingSitesList.appendChild(li);
+      });
+    });
+  }
+
+  function updateTimeSpent() {
+    chrome.runtime.sendMessage({action: "getTimeSpent"}, (response) => {
+      const timeSpentMinutes = Math.floor(response.timeSpent / 60);
+      const timeLimitMinutes = Math.floor(response.timeLimit / 60);
+      timeSpentDisplay.textContent = `Time spent today: ${timeSpentMinutes} / ${timeLimitMinutes} minutes`;
+    });
+  }
+
+  updateBlockedChannelsList();
+  updateDistractingSitesList();
+  updateTimeSpent();
+  setInterval(updateTimeSpent, 60000); // Update every minute
 });

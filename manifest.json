@@ -2,8 +2,14 @@
   "manifest_version": 3,
   "name": "LimitMySocial",
   "version": "1.0",
-  "description": "Blocks social media after time limit is reached.",
-  "permissions": ["tabs", "storage", "activeTab"],
+  "description": "Limit time spent on distracting websites and block specific YouTube channels.",
+  "permissions": ["storage", "tabs", "webNavigation"],
+  "host_permissions": [
+    "https://www.youtube.com/*",
+    "https://*.facebook.com/*",
+    "https://*.twitter.com/*",
+    "https://*.instagram.com/*"
+  ],
   "background": {
     "service_worker": "background.js"
   },
@@ -12,16 +18,13 @@
   },
   "content_scripts": [
     {
-      "matches": [
-        "*://*.youtube.com/*",
-        "*://*.instagram.com/*",
-        "*://*.twitter.com/*",
-        "*://*.facebook.com/*"
-      ],
-      "js": ["content.js"]
+      "matches": ["<all_urls>"],
+      "js": ["content.js"],
+      "css": ["style.css"]
     }
-  ],
-  "icons": {
-    "128": "icon.png"
-  }
+  ]
 }
+
+
+
+

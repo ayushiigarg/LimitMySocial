@@ -1,57 +1,21 @@
 body {
     font-family: Arial, sans-serif;
-    padding: 10px;
-    background-color: #f9f9f9;
-    color: #333;
     width: 300px;
+    padding: 10px;
 }
 
 h1 {
     font-size: 18px;
-    text-align: center;
-    color: #333;
+    margin-bottom: 10px;
+}
+
+h2 {
+    font-size: 16px;
+    margin-top: 20px;
 }
 
 input[type="number"],
 input[type="text"] {
     width: 100%;
-    padding: 8px;
-    margin: 8px 0;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-}
-
-button {
-    width: 100%;
-    padding: 10px;
-    background-color: #007bff;
-    border: none;
-    color: white;
-    border-radius: 4px;
-    font-size: 16px;
-    cursor: pointer;
-    margin-top: 10px;
-}
-
-button:hover {
-    background-color: #0056b3;
-}
-
-.status {
-    margin-top: 10px;
-    font-size: 14px;
-    color: red;
-    text-align: center;
-}
-
-ul {
-    list-style-type: none;
-    padding: 0;
-}
-
-li {
     padding: 5px;
-    background-color: #eee;
-    margin: 5px 0;
-    border-radius: 4px;
 }
