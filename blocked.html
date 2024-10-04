@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Time and Website Limiter with AI Analysis</title>
+    <link rel="stylesheet" type="text/css" href="style.css">
+
+    <style>
+        .modal {
+            display: none;
+            /* Hidden by default */
+            position: fixed;
+            /* Stay in place */
+            z-index: 1;
+            /* Sit on top */
+            left: 0;
+            top: 0;
+            width: 100%;
+            /* Full width */
+            height: 100%;
+            /* Full height */
+            background-color: rgba(0, 0, 0, 0.5);
+            /* Black background with transparency */
+        }
+
+        .modal-content {
+            background-color: #fff;
+            margin: 15% auto;
+            /* 15% from the top and centered */
+            padding: 20px;
+            border: 1px solid #888;
+            width: 50%;
+            /* Could be more or less depending on screen size */
+            text-align: center;
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+            text-align: center;
+        }
+
+        h1 {
+            margin-bottom: 20px;
+        }
+
+        p {
+            margin-bottom: 40px;
+        }
+
+        a {
+            text-decoration: none;
+            color: #007bff;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>LimitMySocial</h1>
+
+        <div class="section">
+            <h2>Social Media Time Limit</h2>
+            <input type="number" id="timeLimit" min="1" placeholder="Enter time limit (minutes)">
+            <button id="setTimeLimit">Set Time Limit</button>
+        </div>
+
+        <div class="section">
+            <h2>Long-form Video AI Analysis</h2>
+            <label class="switch">
+                <input type="checkbox" id="aiAnalysisToggle">
+                <span class="slider round"></span>
+            </label>
+            <span>Enable AI Analysis</span>
+        </div>
+
+        <div class="section">
+            <h2>Blocked YouTube Channels</h2>
+            <input type="text" id="channelUrl" placeholder="Enter YouTube channel URL">
+            <button id="addChannel">Add Channel</button>
+            <ul id="blockedChannels"></ul>
+        </div>
+    </div>
+
+    <!-- Modal for Limit Reached -->
+    <div id="timeLimitModal" class="modal">
+        <div class="modal-content">
+            <span id="closeModalButton" class="close">&times;</span>
+            <h1>Limit Reached</h1>
+            <p>You have reached your daily limit for social media usage.</p>
+            <p>Come back tomorrow!</p>
+        </div>
+    </div>
+
+    <script src="popup.js"></script> <!-- Link to the external JavaScript file -->
+</body>
+
+</html>

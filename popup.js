@@ -1,78 +1,109 @@
-document.addEventListener('DOMContentLoaded', () => {
-  const setTimeLimitButton = document.getElementById('setTimeLimit');
-  const addChannelButton = document.getElementById('addChannel');
-  const addDistractingButton = document.getElementById('addDistracting');
-  const blockedChannelsList = document.getElementById('blockedChannels');
-  const distractingSitesList = document.getElementById('distractingSites');
-  const timeSpentDisplay = document.getElementById('timeSpent');
+document.addEventListener('DOMContentLoaded', function() {
+    const timeLimitInput = document.getElementById('timeLimit');
+    const setTimeLimitButton = document.getElementById('setTimeLimit');
+    const aiAnalysisToggle = document.getElementById('aiAnalysisToggle');
+    const apiKeyInput = document.getElementById('apiKey');
+    const saveApiKeyButton = document.getElementById('saveApiKey');
+    const channelUrlInput = document.getElementById('channelUrl');
+    const addChannelButton = document.getElementById('addChannel');
+    const blockedChannelsList = document.getElementById('blockedChannels');
 
-  setTimeLimitButton.addEventListener('click', () => {
-    const timeLimit = document.getElementById('timeLimit').value;
-    chrome.runtime.sendMessage({action: "setTimeLimit", timeLimit: parseInt(timeLimit)});
-  });
+    // Check if time limit is exceeded
+    chrome.storage.sync.get(['timeLimitExceeded'], (result) => {
+        if (result.timeLimitExceeded) {
+            document.getElementById('timeLimitModal').style.display = 'block'; // Show the modal
+            return;  // Exit early if time limit is exceeded
+        }
 
-  addChannelButton.addEventListener('click', () => {
-    const channelUrl = document.getElementById('channelUrl').value;
-    if (channelUrl) {
-      chrome.runtime.sendMessage({action: "addBlockedChannel", channel: channelUrl});
-      updateBlockedChannelsList();
-    }
-  });
+        // Load saved settings if time limit is not exceeded
+        chrome.storage.sync.get(['timeLimit', 'aiAnalysisEnabled', 'apiKey', 'blockedChannels'], function(result) {
+            if (result.timeLimit) {
+                timeLimitInput.value = result.timeLimit;
+            }
+            if (result.aiAnalysisEnabled !== undefined) {
+                aiAnalysisToggle.checked = result.aiAnalysisEnabled;
+            }
+            if (result.apiKey) {
+                apiKeyInput.value = result.apiKey;
+            }
+            if (result.blockedChannels) {
+                result.blockedChannels.forEach(channel => addChannelToList(channel));
+            }
+        });
+    });
 
-  addDistractingButton.addEventListener('click', () => {
-    const site = document.getElementById('distractingSite').value;
-    if (site) {
-      chrome.runtime.sendMessage({action: "addDistractingSite", site: site});
-      updateDistractingSitesList();
-    }
-  });
+    // Set time limit
+    setTimeLimitButton.addEventListener('click', function() {
+        const timeLimit = parseInt(timeLimitInput.value);
+        if (timeLimit > 0) {
+            chrome.storage.sync.set({timeLimit: timeLimit}, function() {
+                alert('Time limit set successfully!');
+            });
+        } else {
+            alert('Please enter a valid time limit.');
+        }
+    });
 
-  function updateBlockedChannelsList() {
-    chrome.runtime.sendMessage({action: "getBlockedChannels"}, (response) => {
-      blockedChannelsList.innerHTML = '';
-      response.blockedChannels.forEach(channel => {
+    // Toggle AI analysis
+    aiAnalysisToggle.addEventListener('change', function() {
+        chrome.storage.sync.set({aiAnalysisEnabled: aiAnalysisToggle.checked});
+    });
+
+    // Save API key
+    saveApiKeyButton?.addEventListener('click', function() {
+        const apiKey = apiKeyInput.value.trim();
+        if (apiKey) {
+            chrome.storage.sync.set({apiKey: apiKey}, function() {
+                alert('API key saved successfully!');
+            });
+        } else {
+            alert('Please enter a valid API key.');
+        }
+    });
+
+    // Add blocked channel
+    addChannelButton.addEventListener('click', function() {
+        const channelUrl = channelUrlInput.value.trim();
+        if (channelUrl) {
+            chrome.storage.sync.get({blockedChannels: []}, function(result) {
+                const blockedChannels = result.blockedChannels;
+                if (!blockedChannels.includes(channelUrl)) {
+                    blockedChannels.push(channelUrl);
+                    chrome.storage.sync.set({blockedChannels: blockedChannels}, function() {
+                        addChannelToList(channelUrl);
+                        channelUrlInput.value = '';
+                    });
+                } else {
+                    alert('This channel is already blocked.');
+                }
+            });
+        }
+    });
+
+    function addChannelToList(channelUrl) {
         const li = document.createElement('li');
-        li.textContent = channel;
+        li.textContent = channelUrl;
         const removeButton = document.createElement('button');
         removeButton.textContent = 'Remove';
-        removeButton.addEventListener('click', () => {
-          chrome.runtime.sendMessage({action: "removeBlockedChannel", channel: channel});
-          updateBlockedChannelsList();
+        removeButton.addEventListener('click', function() {
+            chrome.storage.sync.get({blockedChannels: []}, function(result) {
+                const blockedChannels = result.blockedChannels.filter(url => url !== channelUrl);
+                chrome.storage.sync.set({blockedChannels: blockedChannels}, function() {
+                    li.remove();
+                });
+            });
         });
         li.appendChild(removeButton);
         blockedChannelsList.appendChild(li);
-      });
-    });
-  }
+    }
 
-  function updateDistractingSitesList() {
-    chrome.runtime.sendMessage({action: "getDistractingSites"}, (response) => {
-      distractingSitesList.innerHTML = '';
-      response.distractingSites.forEach(site => {
-        const li = document.createElement('li');
-        li.textContent = site;
-        const removeButton = document.createElement('button');
-        removeButton.textContent = 'Remove';
-        removeButton.addEventListener('click', () => {
-          chrome.runtime.sendMessage({action: "removeDistractingSite", site: site});
-          updateDistractingSitesList();
+    // Close the modal when the close button is clicked
+    const closeModalButton = document.getElementById('closeModalButton');
+    if (closeModalButton) { // Check if the element exists
+        closeModalButton.addEventListener('click', function() {
+            document.getElementById('timeLimitModal').style.display = 'none';
         });
-        li.appendChild(removeButton);
-        distractingSitesList.appendChild(li);
-      });
-    });
-  }
-
-  function updateTimeSpent() {
-    chrome.runtime.sendMessage({action: "getTimeSpent"}, (response) => {
-      const timeSpentMinutes = Math.floor(response.timeSpent / 60);
-      const timeLimitMinutes = Math.floor(response.timeLimit / 60);
-      timeSpentDisplay.textContent = `Time spent today: ${timeSpentMinutes} / ${timeLimitMinutes} minutes`;
-    });
-  }
-
-  updateBlockedChannelsList();
-  updateDistractingSitesList();
-  updateTimeSpent();
-  setInterval(updateTimeSpent, 60000); // Update every minute
+    } else {
+        console.error('Close modal button not found');
+    }
 });

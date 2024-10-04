@@ -2,13 +2,14 @@
   "manifest_version": 3,
   "name": "LimitMySocial",
   "version": "1.0",
-  "description": "Limit time spent on distracting websites and block specific YouTube channels.",
-  "permissions": ["storage", "tabs", "webNavigation"],
+  "description": "Limit time spent on social media and analyze long-form video content using AI.",
+  "permissions": ["storage", "tabs", "webNavigation", "notifications"],
   "host_permissions": [
-    "https://www.youtube.com/*",
-    "https://*.facebook.com/*",
-    "https://*.twitter.com/*",
-    "https://*.instagram.com/*"
+    "*://*.facebook.com/*",
+    "*://*.instagram.com/*",
+    "*://*.twitter.com/*",
+    "*://*.youtube.com/*",
+    "https://api.openai.com/"
   ],
   "background": {
     "service_worker": "background.js"
@@ -19,12 +20,10 @@
   "content_scripts": [
     {
       "matches": ["<all_urls>"],
-      "js": ["content.js"],
-      "css": ["style.css"]
+      "js": ["content.js"]
     }
-  ]
+  ],
+  "icons": {
+    "48": "icon.png" 
+  }
 }
-
-
-
-
